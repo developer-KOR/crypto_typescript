@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/crypto_typescript/static/js/main.a6bc8013.js",
+    "main.js": "/crypto_typescript/static/js/main.6d992e56.js",
     "index.html": "/crypto_typescript/index.html",
-    "main.a6bc8013.js.map": "/crypto_typescript/static/js/main.a6bc8013.js.map"
+    "main.6d992e56.js.map": "/crypto_typescript/static/js/main.6d992e56.js.map"
   },
   "entrypoints": [
-    "static/js/main.a6bc8013.js"
+    "static/js/main.6d992e56.js"
   ]
 }
