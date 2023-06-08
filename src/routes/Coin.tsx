@@ -6,6 +6,7 @@ import {
   useLocation,
   useParams,
   useMatch,
+  useOutletContext,
 } from "react-router-dom";
 import styled from "styled-components";
 import { fetchCoinsInfo, fetchCoinsTickers } from "../api";
@@ -24,7 +25,7 @@ const Header = styled.header`
   position: relative;
   overflow: hidden;
   a {
-    color: ${(props) => props.theme.accentColor};
+    color: ${(props) => props.theme.textColor};
     position: absolute;
     left: 0;
     font-size: 24px;
@@ -33,7 +34,7 @@ const Header = styled.header`
 
 const Title = styled.h1`
   font-size: 48px;
-  color: ${(props) => props.theme.accentColor};
+  color: ${(props) => props.theme.textColor};
   font-weight: bold;
 `;
 
@@ -44,7 +45,7 @@ const Loader = styled.div`
 const Overview = styled.div`
   display: flex;
   justify-content: space-between;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) => props.theme.contentsColor};
   padding: 10px 20px;
   border-radius: 10px;
 `;
@@ -61,6 +62,9 @@ const OverviewItem = styled.div`
 `;
 const Description = styled.p`
   margin: 20px 0px;
+  background-color: ${(props) => props.theme.contentsColor};;
+  padding: 15px;
+  border-radius: 10px;
 `;
 
 const Tabs = styled.div`
@@ -73,15 +77,18 @@ const Tabs = styled.div`
 const Tab = styled.span<{ isActive: boolean }>`
   text-align: center;
   text-transform: uppercase;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) => props.theme.contentsColor};
   padding: 7px 0px;
   border-radius: 10px;
   a {
-    display: block;
+    display: inline-block;
     color: ${(props) =>
       props.isActive ? props.theme.accentColor : props.theme.textColor};
+    border-bottom: 1px solid
+      ${(props) =>
+        props.isActive ? props.theme.accentColor : props.theme.textColor};
   }
 `;
 
@@ -144,12 +151,16 @@ interface priceData {
   };
 }
 
+interface ICoin {
+  isDark: boolean;
+}
+
 function Coin() {
   const { coinID } = useParams();
   const location = useLocation();
+  const { isDark } = useOutletContext<ICoin>();
   const priceMatch = useMatch(`/${coinID}/price`);
   const chartMatch = useMatch(`/${coinID}/chart`);
-
   const { isLoading: infoLoading, data: infoData } = useQuery<infoData>(
     ["coins", coinID],
     () => fetchCoinsInfo(coinID!)
@@ -161,7 +172,7 @@ function Coin() {
       refetchInterval: 5000,
     }
   );
-  const name = infoData?.name;
+  const coinName = infoData?.name;
   const isLoading = infoLoading || tickersLoading;
   return (
     <Container>
@@ -173,9 +184,15 @@ function Coin() {
             ? "Loading..."
             : infoData?.name}
         </title>
+        <link
+          rel="icon"
+          href={`https://cryptocurrencyliveprices.com/img/${coinID}.png`}
+        />
       </Helmet>
       <Header>
-        <Link to={"/"}>&larr;</Link>
+        <Link to={"/"} style={{ fontSize: 40 }}>
+          &larr;
+        </Link>
         <Title>
           {location?.state
             ? location.state
@@ -190,26 +207,26 @@ function Coin() {
         <>
           <Overview>
             <OverviewItem>
-              <span>Rank:</span>
+              <span>순위:</span>
               <span>{infoData?.rank}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Symbol:</span>
+              <span>심볼:</span>
               <span>{infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Price:</span>
-              <span>{`$${tickersData?.quotes.USD.price.toFixed(2)}`}</span>
+              <span>최고가:</span>
+              <span>${tickersData?.quotes?.USD?.ath_price?.toFixed(2)}</span>
             </OverviewItem>
           </Overview>
           <Description>{infoData?.description}</Description>
           <Overview>
             <OverviewItem>
-              <span>Total Suply:</span>
+              <span>총 공급량:</span>
               <span>{tickersData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Max Supply:</span>
+              <span>최대 공급량:</span>
               <span>{tickersData?.max_supply}</span>
             </OverviewItem>
           </Overview>
@@ -221,7 +238,7 @@ function Coin() {
               <Link to={`/${coinID}/price`}>Price</Link>
             </Tab>
           </Tabs>
-          <Outlet context={{ coinID, name }} />
+          <Outlet context={{ coinID, coinName, isDark }} />
         </>
       )}
     </Container>

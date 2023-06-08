@@ -1,7 +1,9 @@
-import Router from "./routes/Router";
-import { createGlobalStyle } from "styled-components";
+import { ThemeProvider, createGlobalStyle } from "styled-components";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { HelmetProvider } from "react-helmet-async";
+import { darkTheme, lightTheme } from "./theme";
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
 
 const Global = createGlobalStyle`
 
@@ -37,6 +39,7 @@ footer, header, hgroup, main, menu, nav, section {
 
 menu, ol, ul {
   list-style: none;
+  margin-top: 0.5rem;
 }
 blockquote, q {
   quotes: none;
@@ -58,7 +61,7 @@ table {
 body {
   background-color: ${(props) => props.theme.backColor};
   color: ${(props) => props.theme.textColor};
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Noto Sans', "NanumSquare", sans-serif;
   line-height: 1.2;
 }
 
@@ -68,13 +71,17 @@ a {
 `;
 
 function App() {
+  const [isDark, setIsDark] = useState(false);
+  const toggleMode = () => setIsDark((current) => !current);
   return (
     <>
-      <Global />
-      <HelmetProvider>
-        <Router />
-      </HelmetProvider>
-      <ReactQueryDevtools initialIsOpen={true} />
+      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+        <HelmetProvider>
+          <Global />
+          <Outlet context={{toggleMode, isDark}} />
+          <ReactQueryDevtools initialIsOpen={true} />
+        </HelmetProvider>
+      </ThemeProvider>
     </>
   );
 }
